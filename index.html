@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SCS Essential Contacts</title>
+<link rel="icon" type="image/png" href="Fevicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══ RESET ═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628; --navy2:#111f38; --navy3:#1a2f50;
+  --accent:#F5A623; --accent2:#E8562A;
+  --bg:#EFF3FC; --card:#fff;
+  --border:#DDE5F5; --muted:#7A90B5; --text:#0A1628; --mid:#3D5278;
+  --sb:272px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden}
+
+/* ═══ SCROLLBAR ══════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#C5D0E8;border-radius:10px}
+
+/* ═══ SIDEBAR ════════════════════════════════════════ */
+.sidebar{
+  width:var(--sb);min-width:var(--sb);background:var(--navy);
+  min-height:100vh;display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:300;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;overflow-x:hidden;
+}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.sb-logo-icon{width:40px;height:40px;background:var(--accent);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo-icon svg{width:21px;height:21px;fill:#fff}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff;line-height:1.15}
+.sb-logo-sub{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-stat{background:var(--navy2);border-radius:9px;padding:9px 6px;text-align:center}
+.sb-stat .n{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff}
+.sb-stat .l{font-size:9px;color:var(--muted);letter-spacing:.05em;margin-top:1px;text-transform:uppercase}
+
+.sb-nav{padding:12px 8px;flex:1}
+.sb-nav-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 10px;margin:8px 0 5px}
+.nb{
+  display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:9px;
+  background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:12.5px;font-weight:500;color:var(--muted);text-align:left;margin-bottom:2px;
+  transition:background .14s,color .14s;
+}
+.nb:hover{background:var(--navy2);color:#fff}
+.nb.act{background:var(--accent);color:#fff}
+.nb .ic{width:30px;height:30px;border-radius:7px;flex-shrink:0;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:14px}
+.nb.act .ic{background:rgba(255,255,255,.18)}
+.nb .badge{margin-left:auto;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--navy3);color:var(--muted)}
+.nb.act .badge{background:rgba(0,0,0,.2);color:rgba(255,255,255,.8)}
+
+.sb-footer{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.add-btn{width:100%;padding:11px 0;background:linear-gradient(135deg,var(--accent),#d4890a);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .12s}
+.add-btn:hover{opacity:.88;transform:translateY(-1px)}
+.add-btn:active{transform:scale(.98)}
+
+/* ═══ MAIN ═══════════════════════════════════════════ */
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh;max-width:100%}
+
+/* ── TOPBAR ── */
+.topbar{background:#fff;padding:12px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:5px;flex-direction:column;gap:4px;flex-shrink:0}
+.hamburger span{width:20px;height:2px;background:var(--text);border-radius:2px;display:block;transition:all .2s}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+.search-box{flex:1;min-width:160px;max-width:380px;display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:7px 12px}
+.search-box svg{width:14px;height:14px;color:var(--muted);flex-shrink:0}
+.search-box input{border:none;background:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);width:100%}
+.search-box input::placeholder{color:var(--muted)}
+
+.tb-actions{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .14s;flex-shrink:0}
+.icon-btn svg{width:15px;height:15px;color:var(--muted)}
+.icon-btn:hover{border-color:var(--accent);background:#FFF8EE}
+.icon-btn:hover svg{color:var(--accent)}
+.icon-btn.act{background:var(--navy);border-color:var(--navy)}
+.icon-btn.act svg{color:#fff}
+
+.print-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;border:1.5px solid var(--border);background:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;transition:all .14s;white-space:nowrap}
+.print-btn svg{width:14px;height:14px}
+.print-btn:hover{border-color:var(--navy);color:var(--navy);background:#F0F4FA}
+
+/* ── FILTER BAR ── */
+.filter-bar{background:#fff;padding:10px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-bar-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.filter-select{padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--mid);background:#fff;outline:none;cursor:pointer;transition:border-color .14s;min-width:130px}
+.filter-select:focus{border-color:var(--accent)}
+.filter-select.has-val{border-color:var(--accent);color:var(--text);background:#FFFBF0;font-weight:600}
+.clear-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #FBD9A0;background:#FFF8EE;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;color:var(--accent2);cursor:pointer;transition:all .14s;white-space:nowrap}
+.clear-btn:hover{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.filter-results{margin-left:auto;font-size:11px;color:var(--muted)}
+
+/* ── CONTENT ── */
+.content{padding:20px 24px;flex:1}
+.pg-head{margin-bottom:18px}
+.pg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pg-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+.pg-cnt{background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.pg-sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+/* ── CARDS ── */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.contact-card{background:#fff;border-radius:15px;border:1.5px solid var(--border);padding:18px 16px 14px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
+.contact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-top,var(--accent))}
+.contact-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(10,22,40,.10);border-color:#c8d4ec}
+.cc-hd{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.avatar{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff}
+.cc-name{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:800;color:var(--text);line-height:1.2}
+.cc-role{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3}
+.dpill{display:inline-block;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase}
+.cc-info{display:flex;flex-direction:column;gap:5px}
+.ir{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--mid)}
+.ir svg{width:11px;height:11px;flex-shrink:0;color:var(--muted);margin-top:1px}
+.ir a{color:var(--mid);text-decoration:none;font-weight:600}
+.ir a:hover{color:var(--accent)}
+.cc-acts{display:flex;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid var(--border)}
+.ca{flex:1;padding:6px 0;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--mid);display:flex;align-items:center;justify-content:center;gap:4px;transition:all .14s}
+.ca:hover{border-color:var(--accent);color:var(--accent);background:#FFFBF0}
+.ca.p{background:var(--navy);border-color:var(--navy);color:#fff}
+.ca.p:hover{background:var(--navy3);border-color:var(--navy3)}
+
+/* ── TABLE ── */
+.tw{background:#fff;border-radius:13px;border:1.5px solid var(--border);overflow:hidden;width:100%}
+.tw-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{width:100%;border-collapse:collapse;font-size:12px}
+.tw thead th{background:var(--navy);color:#fff;padding:10px 13px;font-weight:700;font-family:'Syne',sans-serif;font-size:10.5px;letter-spacing:.05em;text-align:left;white-space:nowrap}
+.tw tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+.tw tbody tr:last-child{border-bottom:none}
+.tw tbody tr:hover{background:#F5F9FF}
+.tw tbody td{padding:10px 13px;color:var(--mid);vertical-align:middle}
+.tw tbody td:first-child{color:var(--muted);font-weight:700;font-size:10.5px}
+.tdn{font-weight:800;color:var(--text);font-family:'Syne',sans-serif;font-size:12px}
+.tbadge{display:inline-block;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.pl{color:var(--navy3);text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:2px;white-space:nowrap;font-size:11.5px}
+.pl:hover{color:var(--accent);text-decoration:underline}
+.mpl{display:flex;flex-direction:column;gap:3px}
+
+/* ── LIST ── */
+.list-view{display:flex;flex-direction:column;gap:8px}
+.li{background:#fff;border-radius:11px;border:1.5px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:12px;transition:all .14s}
+.li:hover{border-color:#c8d4ec;box-shadow:0 3px 14px rgba(10,22,40,.07)}
+.li-info{flex:1;min-width:0}
+.li-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text)}
+.li-role{font-size:11px;color:var(--muted);margin-top:2px}
+.li-meta{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--mid)}
+.li-meta span{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.li-meta svg{width:11px;height:11px;color:var(--muted)}
+
+/* ── DEPT GROUP HEADER ── */
+.dept-group-hd{display:flex;align-items:center;gap:10px;margin:20px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.dept-group-hd:first-child{margin-top:0}
+.dgh-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text)}
+.dgh-cnt{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(10,22,40,.6);display:flex;align-items:center;justify-content:center;z-index:400;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:460px;max-height:94vh;overflow-y:auto;transform:translateY(16px) scale(.97);transition:transform .2s;box-shadow:0 20px 60px rgba(10,22,40,.25)}
+.overlay.open .modal{transform:none}
+.modal-hd{padding:20px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text)}
+.modal-x{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);transition:all .13s}
+.modal-x:hover{background:#FFF0ED;border-color:var(--accent2);color:var(--accent2)}
+.modal-body{padding:16px 20px 6px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:9.5px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.fg input,.fg select{padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .14s;background:var(--bg)}
+.fg input:focus,.fg select:focus{border-color:var(--accent);background:#fff}
+.modal-ft{display:flex;gap:9px;padding:6px 20px 18px}
+.btn-c{flex:1;padding:10px 0;border-radius:9px;border:1.5px solid var(--border);background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--mid);transition:all .13s}
+.btn-c:hover{border-color:var(--muted)}
+.btn-s{flex:2;padding:10px 0;border-radius:9px;border:none;background:var(--navy);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .13s}
+.btn-s:hover{opacity:.85}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty svg{width:42px;height:42px;margin-bottom:12px;opacity:.3;display:block;margin-inline:auto}
+
+/* ── CREDIT TAG ── */
+.credit-tag{position:fixed;bottom:16px;right:16px;background:linear-gradient(135deg,var(--navy),var(--navy3));color:#fff;padding:9px 16px;border-radius:50px;box-shadow:0 6px 20px rgba(10,22,40,.25);font-size:11px;font-weight:600;display:flex;align-items:center;gap:8px;z-index:500;cursor:default;transition:transform .2s,box-shadow .2s;text-decoration:none;animation:slideUpIn .6s ease 1s both}
+.credit-tag:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(10,22,40,.3)}
+.credit-av{width:24px;height:24px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.credit-tag span{white-space:nowrap}
+@keyframes slideUpIn{from{transform:translateY(45px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ═══ MOBILE OVERLAY BACKDROP ════════════════════════ */
+.sb-backdrop{position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:299;display:none}
+.sb-backdrop.show{display:block}
+
+/* ═══ PRINT STYLES ═══════════════════════════════════ */
+@media print{
+  @page{size:A4 portrait;margin:12mm 10mm}
+  html,body{background:#fff !important;font-size:11px}
+  .sidebar,.topbar,.filter-bar,.add-btn,.hamburger,.icon-btn,.print-btn,.cc-acts,.ca,.credit-tag,.sb-backdrop,.overlay{display:none !important}
+  .main{margin-left:0 !important;padding:0}
+  .content{padding:0 !important}
+  body{display:block}
+  .print-header{display:block !important;text-align:center;padding:0 0 12px;border-bottom:2px solid #0A1628;margin-bottom:16px}
+  .print-header h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#0A1628}
+  .print-header p{font-size:11px;color:#7A90B5;margin-top:4px}
+  .dept-group-hd{break-before:auto;break-inside:avoid;margin:14px 0 6px;padding-bottom:5px;border-bottom:2px solid #0A1628}
+  .dgh-title{font-size:13px}
+  .cards-grid{grid-template-columns:repeat(3,1fr) !important;gap:8px}
+  .contact-card{border:1px solid #DDE5F5 !important;break-inside:avoid;box-shadow:none !important;padding:10px !important}
+  .contact-card::before{height:2px !important}
+  .tw{border:1px solid #DDE5F5;box-shadow:none}
+  .tw thead th{background:#0A1628 !important;color:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:6px 8px;font-size:9px}
+  .tw tbody td{padding:5px 8px;font-size:10px}
+  .tw tbody tr:nth-child(even){background:#F5F8FF !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dpill,.tbadge,.dgh-cnt{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pl{color:#0A1628 !important;text-decoration:none !important}
+  .list-view .li{break-inside:avoid;border:1px solid #DDE5F5;box-shadow:none}
+  .pg-head{margin-bottom:10px}
+  .pg-title{font-size:16px}
+  .avatar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ═══ RESPONSIVE ═════════════════════════════════════ */
+@media(max-width:920px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.sb-open{transform:none}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .content{padding:16px 16px}
+  .topbar{padding:10px 16px}
+  .filter-bar{padding:10px 16px}
+  .filter-results{display:none}
+}
+@media(max-width:600px){
+  .cards-grid{grid-template-columns:1fr}
+  .fr{grid-template-columns:1fr}
+  .tb-actions .print-btn span{display:none}
+  .li-meta{display:none}
+  .topbar{gap:8px}
+  .filter-bar{gap:7px}
+  .filter-select{min-width:unset;font-size:11.5px}
+  .search-box{max-width:none}
+}
+@media(max-width:400px){
+  .content{padding:12px 10px}
+  .topbar{padding:9px 10px}
+  .filter-bar{padding:9px 10px}
+  .credit-tag{bottom:10px;right:10px;font-size:10px;padding:7px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR BACKDROP ══ -->
+<div class="sb-backdrop" id="sbBackdrop" onclick="closeSB()"></div>
+
+<!-- ══ SIDEBAR ══════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm4 4H8v-.5c0-1.4 2.7-2 4-2s4 .6 4 2V16z"/></svg>
+    </div>
+    <div>
+      <div class="sb-logo-text">SCS Contacts</div>
+      <div class="sb-logo-sub">Essential Directory</div>
+    </div>
+  </div>
+  <div class="sb-stats" id="sbStats"></div>
+  <nav class="sb-nav">
+    <div class="sb-nav-lbl">Departments</div>
+    <div id="navList"></div>
+  </nav>
+  <div class="sb-footer">
+    <button class="add-btn" onclick="openModal()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+      Add New Contact
+    </button>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════ -->
+<div class="main">
+
+  <!-- PRINT HEADER (hidden on screen, visible on print) -->
+  <div class="print-header" style="display:none">
+    <h1>SCS Essential Contacts</h1>
+    <p id="printMeta">Office Directory — Printed on <span id="printDate"></span></p>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="hamburger" id="hbBtn" onclick="toggleSB()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="srch" type="text" placeholder="Search name, contact, vehicle, hub…" oninput="render()"/>
+    </div>
+    <div class="tb-actions">
+      <!-- View Toggles -->
+      <div style="display:flex;gap:4px">
+        <button class="icon-btn act" id="vCard" onclick="setView('card')" title="Card View">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="icon-btn" id="vList" onclick="setView('list')" title="List View">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="18" height="2"/><rect x="3" y="11" width="18" height="2"/><rect x="3" y="17" width="18" height="2"/></svg>
+        </button>
+        <button class="icon-btn" id="vTable" onclick="setView('table')" title="Table View">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+        </button>
+      </div>
+      <!-- Print -->
+      <button class="print-btn" onclick="doPrint()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Print</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-bar-lbl">Filter:</span>
+
+    <select class="filter-select" id="fDept" onchange="onFilterChange(this)">
+      <option value="">All Departments</option>
+      <option value="Driver">🚚 Driver</option>
+      <option value="C4">📡 C4</option>
+      <option value="Administration">🏢 Administration</option>
+      <option value="IT">💻 IT</option>
+      <option value="Operation">⚙️ Operation</option>
+    </select>
+
+    <select class="filter-select" id="fRole" onchange="onFilterChange(this)">
+      <option value="">All Designations / Roles</option>
+    </select>
+
+    <select class="filter-select" id="fHub" onchange="onFilterChange(this)">
+      <option value="">All Hubs / Locations</option>
+    </select>
+
+    <select class="filter-select" id="fVehicle" onchange="onFilterChange(this)">
+      <option value="">All Vehicle Types</option>
+    </select>
+
+    <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+    <span class="filter-results" id="filterResults"></span>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="pg-head">
+      <div class="pg-row">
+        <span class="pg-title" id="pgTitle">All Contacts</span>
+        <span class="pg-cnt" id="pgCnt">0</span>
+      </div>
+      <div class="pg-sub" id="pgSub">SCS Essential Office Directory</div>
+    </div>
+    <div id="container"></div>
+  </div>
+</div>
+
+<!-- ══ ADD MODAL ══════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Add New Contact</div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fr">
+        <div class="fg"><label>Full Name</label><input id="fn" placeholder="Mr. John Doe"/></div>
+        <div class="fg"><label>Department</label>
+          <select id="fd">
+            <option value="">Select…</option>
+            <option>Driver</option><option>C4</option><option>Administration</option><option>IT</option><option>Operation</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Designation / Role</label><input id="fr2" placeholder="Manager"/></div>
+        <div class="fg"><label>Contact Number</label><input id="fc" placeholder="01700-000000"/></div>
+      </div>
+      <div class="fr" style="margin-bottom:0">
+        <div class="fg"><label>Hub / Location / Area</label><input id="fx" placeholder="Hub Keraniganj (HKG)"/></div>
+        <div class="fg"><label>Vehicle No. / Division / Dept.</label><input id="fy" placeholder="14-1660 or CHATTAGRAM"/></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-c" onclick="closeModal()">Cancel</button>
+      <button class="btn-s" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CREDIT TAG ══════════════════════════════════ -->
+<div class="credit-tag" title="Developer Credit">
+  <a href="dhaka_map.html" style="text-decoration: none; color: inherit;">
+    <span>Find Dhaka City Area</span>
+  </a>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════ */
+const DEPTS=[
+  {key:'All',         label:'All Contacts',   icon:'🗂️', clr:'#0A1628', bg:'#E4EEF8', top:'#F5A623'},
+  {key:'Driver',      label:'Driver',         icon:'🚚', clr:'#7A4500', bg:'#FAEEDA', top:'#F5A623'},
+  {key:'C4',          label:'C4 Contacts',    icon:'📡', clr:'#0D5C45', bg:'#D8F3EA', top:'#27AE8F'},
+  {key:'Administration',label:'Administration',icon:'🏢', clr:'#114B8A', bg:'#DAEAF9', top:'#378ADD'},
+  {key:'IT',          label:'IT',             icon:'💻', clr:'#3E2D87', bg:'#EAE8FD', top:'#7B5EA7'},
+  {key:'Operation',   label:'Operation',      icon:'⚙️', clr:'#7A2610', bg:'#FAEBE7', top:'#E8562A'},
+];
+const AVC=['#F5A623','#27AE8F','#7B5EA7','#E8562A','#378ADD','#2E7D32','#C62828','#00838F','#AD1457','#546E7A'];
+const avc=i=>AVC[Math.abs(i)%AVC.length];
+function ini(n){const p=n.trim().split(/\s+/);return p.length===1?p[0].substring(0,2).toUpperCase():(p[0][0]+(p[p.length-1][0]||'')).toUpperCase()}
+
+const driverRaw=[
+  {id:1,name:"KHOKON",vehicle:"14-1660",driverId:"KMP-2213",contact:"01876131058",from:"KLP (KALLYANPUR)"},
+  {id:2,name:"FARUK",vehicle:"11-1039",driverId:"KLP-4600",contact:"01777346162 & 01823205385",from:"KLP (KALLYANPUR)"},
+  {id:3,name:"JULFIKER",vehicle:"14-1016",driverId:"KLP-4625",contact:"01786331993",from:"KLP (KALLYANPUR)"},
+  {id:4,name:"BELAL",vehicle:"14-1657",driverId:"HKG-0548",contact:"01710450568",from:"KLP (KALLYANPUR)"},
+  {id:5,name:"SUMON",vehicle:"14-1891",driverId:"HKG-0206",contact:"01998984200",from:"KLP (KALLYANPUR)"},
+  {id:6,name:"MUSA-2",vehicle:"14-1892",driverId:"HKG-0279",contact:"01799663536",from:"KLP (KALLYANPUR)"},
+  {id:7,name:"EMAM",vehicle:"14-2047",driverId:"KLP-4590",contact:"01781518150",from:"KLP (KALLYANPUR)"},
+  {id:8,name:"N/A",vehicle:"14-1014",driverId:"N/A",contact:"01970698033",from:"KLP (KALLYANPUR)"},
+  {id:9,name:"SHOHEL",vehicle:"14-1149",driverId:"KLP-4645",contact:"01906660082",from:"KLP (KALLYANPUR)"},
+  {id:10,name:"RAJU",vehicle:"13-2101",driverId:"KMP-2139",contact:"01868919191",from:"KLP (KALLYANPUR)"},
+  {id:11,name:"BELLAL-10",vehicle:"13-2103",driverId:"KMP-2336",contact:"01833276901",from:"KLP (KALLYANPUR)"},
+  {id:12,name:"KASHEM-3",vehicle:"14-1819",driverId:"KMP-2074",contact:"01778704543 & 01910747540",from:"KLP (KALLYANPUR)"},
+  {id:13,name:"ALOM",vehicle:"14-1152",driverId:"HKG-0541",contact:"01872023543",from:"KLP (KALLYANPUR)"},
+  {id:14,name:"RAKIBUL",vehicle:"11-0743",driverId:"KLP-4599",contact:"01613715976",from:"KLP (KALLYANPUR)"},
+  {id:15,name:"SOHEL",vehicle:"14-1150",driverId:"HKG-0539",contact:"01712186468",from:"KLP (KALLYANPUR)"},
+  {id:16,name:"RABBANI",vehicle:"14-2075",driverId:"KMP-2436",contact:"01788285641",from:"KLP (KALLYANPUR)"},
+  {id:17,name:"ASRAF",vehicle:"14-0057",driverId:"KLP-1580",contact:"01927589304",from:"KLP (KALLYANPUR)"},
+  {id:18,name:"NAHID",vehicle:"54-0850",driverId:"KMP-2321",contact:"01748597401",from:"KLP (KALLYANPUR)"},
+  {id:19,name:"TUHIN",vehicle:"54-0851",driverId:"HKG-0273",contact:"01767254221 & 01614132067",from:"KLP (KALLYANPUR)"},
+  {id:20,name:"ZIHAD",vehicle:"14-2078",driverId:"HKG-0212",contact:"01968423391",from:"KLP (KALLYANPUR)"},
+  {id:21,name:"ABDUL GAFFAR",vehicle:"14-0567",driverId:"KLP-03125",contact:"01311257863",from:"KLP (KALLYANPUR)"},
+  {id:22,name:"ARIFUR-8",vehicle:"11-7755",driverId:"KMP-2380",contact:"01849224412",from:"KLP (KALLYANPUR)"},
+  {id:23,name:"HELAL",vehicle:"11-7759",driverId:"KMP-2212",contact:"01601257169",from:"KLP (KALLYANPUR)"},
+  {id:24,name:"SOBUJ-7",vehicle:"11-7763",driverId:"KMP-2214",contact:"01712547012",from:"KLP (KALLYANPUR)"},
+  {id:25,name:"ARIF",vehicle:"11-1288",driverId:"KLP-4683",contact:"01323645049",from:"KLP (KALLYANPUR)"},
+  {id:26,name:"IBRAHIM",vehicle:"14-1785",driverId:"HKG-00538",contact:"01749170363",from:"KLP (KALLYANPUR)"},
+  {id:27,name:"ASHIK",vehicle:"54-1107",driverId:"KLP-4674",contact:"01716200715",from:"KLP (KALLYANPUR)"},
+  {id:28,name:"OCR",vehicle:"Vehicle Tracker",driverId:"#-#",contact:"01936008781",from:"KLP (KALLYANPUR)"},
+  {id:29,name:"OCR-2",vehicle:"Vehicle Tracker",driverId:"#-#",contact:"01936008782",from:"KLP (KALLYANPUR)"},
+  {id:30,name:"LOKMAN",vehicle:"Vehicle Manager",driverId:"#-#",contact:"01936008616",from:"KLP (KALLYANPUR)"},
+  {id:31,name:"Mr. Rabbi",vehicle:"Vehicle Manager",driverId:"#-#",contact:"01968770524",from:"KLP (KALLYANPUR)"},
+  {id:32,name:"MALEK",vehicle:"Vehicle Manager",driverId:"#-#",contact:"01936003166",from:"KLP (KALLYANPUR)"},
+  {id:33,name:"TAREQ",vehicle:"14-1899",driverId:"N/A",contact:"01754921386",from:"(HKG) HUB KERANIGANJ"},
+  {id:34,name:"OCR",vehicle:"Vehicle Tracker",driverId:"#-#",contact:"01936003239",from:"(HKG) HUB KERANIGANJ"},
+  {id:34,name:"OCR-2 (Small Vehicle)",vehicle:"Vehicle Tracker",driverId:"#-#",contact:"01936002090",from:"(HKG) HUB KERANIGANJ"},
+  {id:35,name:"ROHIM",vehicle:"14-1904",driverId:"N/A",contact:"01632380353 & 01324183138",from:"(HKG) HUB KERANIGANJ"},
+  {id:36,name:"PARVEZ",vehicle:"13-1854",driverId:"N/A",contact:"01305148531",from:"(HKG) HUB KERANIGANJ"},
+  {id:37,name:"MOJNU",vehicle:"13-2099",driverId:"N/A",contact:"01791795726",from:"(HKG) HUB KERANIGANJ"},
+  {id:38,name:"NAEEM",vehicle:"14-1134",driverId:"N/A",contact:"01679156862",from:"(HKG) HUB KERANIGANJ"},
+  {id:39,name:"SOHEL",vehicle:"54-1750",driverId:"N/A",contact:"01735112969",from:"(U15) UTTARA-15"},
+  {id:40,name:"SAHABUDDIN",vehicle:"54-1754",driverId:"N/A",contact:"01677474326",from:"(U15) UTTARA-15"},
+  {id:41,name:"Abul Kalam",vehicle:"13-1875",driverId:"N/A",contact:"01675546005",from:"(U15) UTTARA-15"},
+  {id:42,name:"OSMAN",vehicle:"14-1777",driverId:"N/A",contact:"01739092447",from:"(U15) UTTARA-15"},
+  {id:43,name:"ARIF",vehicle:"14-1786",driverId:"N/A",contact:"01735508375",from:"(U15) UTTARA-15"},
+];
+const c4Raw=[
+  {id:101,name:"Mr. Helal Uddin",contact:"01936003342",division:"Manager (C4)",hub:"Hub Keraniganj (HKG)"},
+  {id:102,name:"N/A",contact:"01936003342",division:"Manager (C4)",hub:"Hub Kallyanpur (HKL)"},
+  {id:103,name:"MR. Liton",contact:"01936003129",division:"In-charge (C4)",hub:"Hub Kallyanpur (HKL)"},
+  {id:104,name:"Mr. Opu",contact:"01979580631",division:"OLD Dhaka",hub:"Hub Keraniganj (HKG)"},
+  {id:105,name:"MR. Rabbi",contact:"01952255780 & 01609891575",division:"CHATTAGRAM",hub:"Hub Keraniganj (HKG)"},
+  {id:106,name:"MR. Omar",contact:"01936003315",division:"KHULNA (JSR,MHP,CHA,JHD,KST,SAT)",hub:"Hub Keraniganj (HKG)"},
+  {id:107,name:"MR. Shuvo",contact:"01963603009",division:"BARISHAL",hub:"Hub Keraniganj (HKG)"},
+  {id:108,name:"MRS. Kuntola",contact:"01963603036",division:"Dhaka-North",hub:"Hub Kallyanpur (HKL)"},
+  {id:109,name:"MRS. Mukta",contact:"01963603037",division:"Rangpur",hub:"Hub Kallyanpur (HKL)"},
+  {id:110,name:"Mr. Shafiq",contact:"01811110105 & 01974524120",division:"HKL — Floor Day",hub:"Hub Kallyanpur (HKL)"},
+  {id:111,name:"Mr. Biddut",contact:"01963603047",division:"HKL — Floor Night",hub:"Hub Kallyanpur (HKL)"},
+];
+const adminRaw=[
+  {id:201,name:"Md. Abdur Rahman",desig:"DGM (FSCC)",contact:"01936003198"},
+  {id:202,name:"Md. A.K. Azad",desig:"Asst. Manager (FSCC)",contact:"01936003300"},
+  {id:203,name:"Md. Rashedur Rahman",desig:"Executive (FSCC)",contact:"01952255657"},
+  {id:204,name:"Md. Showrov",desig:"Executive (FSCC)",contact:"01936008384"},
+  {id:205,name:"Mrs. Shorna",desig:"Executive (FSCC)",contact:"01952255693"},
+  {id:206,name:"ASM Montaquim Dipu",desig:"DGM (HR & Admin)",contact:"01936003214"},
+  {id:207,name:"Mr. Poritosh Chandra Debnath",desig:"Manager (HR & Admin)",contact:"01985446182"},
+  {id:208,name:"Mr. Mostak Ahmed",desig:"Manager (HR & Admin)",contact:"01918805484"},
+  {id:209,name:"Md. Shariful Islam",desig:"Executive (HR & Admin)",contact:"01925274237"},
+  {id:210,name:"Mr. Ratan Mia",desig:"Executive (HR & Admin)",contact:"01784011916"},
+  {id:211,name:"Md. Tanvir Islam Noman",desig:"SR. Executive (CMDC)",contact:"01952255760"},
+  {id:212,name:"Suraya Akter Munni",desig:"Executive (HR & Admin)",contact:"N/A"},
+  {id:213,name:"Md. Masum Hossain",desig:"Executive (HR & Admin)",contact:"01731983730"},
+  {id:214,name:"Md. Yasin Arafat Shuvo",desig:"Executive (HR & Admin)",contact:"01957777818"},
+  {id:215,name:"Md. Belal Hossain",desig:"HR & Admin",contact:"01340356639"},
+  {id:216,name:"Mr. Abu Nasser Chowdhury",desig:"HR & Admin",contact:"01407875924"},
+  {id:217,name:"Mr. Orin Hasan",desig:"Executive (HR & Admin)",contact:"01631308772"},
+  {id:218,name:"Mr. Krishan Sarkar",desig:"JR. Executive (HR & Admin)",contact:"01781573271"},
+  {id:219,name:"Mr. Nazmul Islam",desig:"JR. Executive (HR & Admin)",contact:"01571715755 & 01736159818"},
+  {id:220,name:"Md. Babul",desig:"Executive (Accounts)",contact:"01952255647"},
+  {id:221,name:"Md. Nasif Iqbal",desig:"To-Pay Monitoring (Accounts)",contact:"01952255694"},
+];
+const itRaw=[
+  {id:301,name:"MR. Rashedul Islam",desig:"AGM",contact:"01916945354",dept:"Requisition"},
+  {id:302,name:"Mr. Nahid Rahim",desig:"Manager",contact:"01936008423 & 01712868540",dept:"Software Permission"},
+  {id:303,name:"Mr. Dipu",desig:"Software Developer",contact:"01990940129",dept:"Development"},
+  {id:304,name:"Mr. Roton",desig:"Network Engineer",contact:"01822443356",dept:"Networking"},
+  {id:305,name:"Mr. Mamun",desig:"In-Charge (MR Cancel)",contact:"01952255740",dept:"To-Pay"},
+  {id:306,name:"Mr. Sakib",desig:"Read-Cancel",contact:"01936003206",dept:"Accounts"},
+  {id:307,name:"Mr. Torikul Islam",desig:"Incharge",contact:"01952255664",dept:"Amendment & Void"},
+  {id:308,name:"Mr. Lutful Islam Shakon",desig:"IT Executive",contact:"01680629433",dept:"Service"},
+  {id:309,name:"Mr. Monir",desig:"IT Hardware (Barcode Printer)",contact:"01936006536",dept:"Servicing"},
+  {id:310,name:"Mr. Nasim",desig:"IT Hardware (Laser Printer)",contact:"01956091741",dept:"Servicing"},
+  {id:311,name:"Mr. Afjal",desig:"IT Hardware",contact:"01778573445",dept:"Procurement"},
+  {id:312,name:"Mrs. Nita",desig:"IT Executive",contact:"01936008294",dept:"Requisition"},
+  {id:313,name:"Hot-line (Employees)",desig:"Amendment & Void Hotline",contact:"01952255674 & 01952255695 & 01936003381 & 01936003382 & 01936003383",dept:"Amendment & Void"},
+  {id:314,name:"Hot-Line",desig:"Service Hot-Line",contact:"09678119130",dept:"Service"},
+];
+const opRaw=[
+  {id:401,name:"MR. FAZLE HAQUE",contact:"01716528315",desig:"Director",role:"Operation (HKG)"},
+  {id:402,name:"Mr. Saledin Newaz Joy",contact:"01511120801",desig:"Director",role:"Operation (HKL)"},
+  {id:403,name:"Mr. Abul Hossain",contact:"01972749514",desig:"AGM",role:"Night Operation (HKL)"},
+  {id:404,name:"Mr. Wasi Uddin",contact:"01712209516",desig:"AGM",role:"Day Operation (HKL & HKG)"},
+  {id:405,name:"Mr. Ranzu",contact:"01936003363",desig:"Manager",role:"Night Operation (HKL)"},
+  {id:406,name:"Mr. Mehedi Hasan",contact:"01952255783",desig:"Manager",role:"GPC & Night Operation (HKG)"},
+  {id:407,name:"Mr. Alam",contact:"01904799734",desig:"Manager",role:"Night Operation (HKG)"},
+  {id:408,name:"Mr. Dulal Mia",contact:"01936003234",desig:"Manager",role:"Day Operation (HKL)"},
+  {id:409,name:"Mr. Nurul Islam",contact:"01936003317",desig:"In-Charge",role:"Day Operation (HKG)"},
+  {id:410,name:"Mr. Al Ajim Shikder Tipu",contact:"01929128366 & 01718271886",desig:"In-Charge",role:"Night Operation (HKG)"},
+  {id:411,name:"Mr. Fokhrul Islam",contact:"01936003189",desig:"DGM",role:"Divisional Head (Dhaka-North)"},
+];
+
+/* Normalise into unified format */
+function buildAll(){
+  const all=[];
+  driverRaw.forEach(d=>all.push({_id:d.id,dept:'Driver',name:d.name,role:d.vehicle,desig:d.vehicle,hub:d.from,division:'',vehicle:d.vehicle,driverId:d.driverId,contact:d.contact,extra1:d.from,extra2:d.driverId}));
+  c4Raw.forEach(d=>all.push({_id:d.id,dept:'C4',name:d.name,role:d.division,desig:d.division,hub:d.hub,division:d.division,vehicle:'',driverId:'',contact:d.contact,extra1:d.hub,extra2:d.division}));
+  adminRaw.forEach(d=>all.push({_id:d.id,dept:'Administration',name:d.name,role:d.desig,desig:d.desig,hub:'',division:'',vehicle:'',driverId:'',contact:d.contact,extra1:d.desig,extra2:''}));
+  itRaw.forEach(d=>all.push({_id:d.id,dept:'IT',name:d.name,role:d.desig,desig:d.desig,hub:d.dept,division:d.dept,vehicle:'',driverId:'',contact:d.contact,extra1:d.desig,extra2:d.dept}));
+  opRaw.forEach(d=>all.push({_id:d.id,dept:'Operation',name:d.name,role:d.desig,desig:d.desig,hub:d.role,division:d.role,vehicle:'',driverId:'',contact:d.contact,extra1:d.desig,extra2:d.role}));
+  return all;
+}
+let allC=buildAll();
+let curDept='All',curView='card',nid=1000;
+
+/* ═══════════════════════════════════════════════════
+   FILTER DROPDOWNS — populate dynamically
+═══════════════════════════════════════════════════ */
+function populateFilters(){
+  const roles=[...new Set(allC.map(c=>c.desig).filter(Boolean))].sort();
+  const hubs=[...new Set(allC.map(c=>c.hub).filter(Boolean))].sort();
+  const vehicles=[...new Set(allC.filter(c=>c.dept==='Driver').map(c=>c.vehicle).filter(Boolean))].sort();
+
+  const fRole=document.getElementById('fRole');
+  const fHub=document.getElementById('fHub');
+  const fVehicle=document.getElementById('fVehicle');
+
+  fRole.innerHTML=`<option value="">All Designations / Roles</option>`+roles.map(r=>`<option value="${r}">${r}</option>`).join('');
+  fHub.innerHTML=`<option value="">All Hubs / Locations</option>`+hubs.map(h=>`<option value="${h}">${h}</option>`).join('');
+  fVehicle.innerHTML=`<option value="">All Vehicle Types</option>`+vehicles.map(v=>`<option value="${v}">${v}</option>`).join('');
+}
+
+function onFilterChange(el){
+  if(el.value) el.classList.add('has-val'); else el.classList.remove('has-val');
+  // sync dept select with sidebar
+  const dv=document.getElementById('fDept').value;
+  if(dv&&dv!==curDept){curDept=dv;renderNav();}
+  else if(!dv&&curDept!=='All'){curDept='All';renderNav();}
+  render();
+}
+
+function clearFilters(){
+  ['fDept','fRole','fHub','fVehicle'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.value='';el.classList.remove('has-val');
+  });
+  document.getElementById('srch').value='';
+  curDept='All';renderNav();render();
+}
+
+function getFilters(){
+  return{
+    dept:document.getElementById('fDept').value,
+    role:document.getElementById('fRole').value,
+    hub:document.getElementById('fHub').value,
+    vehicle:document.getElementById('fVehicle').value,
+    q:(document.getElementById('srch').value||'').toLowerCase().trim()
+  };
+}
+
+/* ═══════════════════════════════════════════════════
+   GET FILTERED LIST
+═══════════════════════════════════════════════════ */
+function getFiltered(){
+  const f=getFilters();
+  let list=[...allC];
+  if(f.dept)list=list.filter(c=>c.dept===f.dept);
+  else if(curDept!=='All')list=list.filter(c=>c.dept===curDept);
+  if(f.role)list=list.filter(c=>c.desig===f.role);
+  if(f.hub)list=list.filter(c=>c.hub===f.hub||c.extra1===f.hub);
+  if(f.vehicle)list=list.filter(c=>c.vehicle===f.vehicle);
+  if(f.q)list=list.filter(c=>
+    c.name.toLowerCase().includes(f.q)||
+    c.desig.toLowerCase().includes(f.q)||
+    c.contact.toLowerCase().includes(f.q)||
+    (c.hub||'').toLowerCase().includes(f.q)||
+    (c.division||'').toLowerCase().includes(f.q)||
+    (c.vehicle||'').toLowerCase().includes(f.q)||
+    (c.driverId||'').toLowerCase().includes(f.q)||
+    c.dept.toLowerCase().includes(f.q)
+  );
+  return list;
+}
+
+/* ═══════════════════════════════════════════════════
+   PHONE HELPER
+═══════════════════════════════════════════════════ */
+function pl(contact,stack){
+  if(!contact||contact==='N/A')return'<span style="color:var(--muted)">N/A</span>';
+  const nums=contact.split('&').map(s=>s.trim()).filter(Boolean);
+  if(nums.length===1)return`<a class="pl" href="tel:${nums[0].replace(/\D/g,'')}">${nums[0]}</a>`;
+  return`<div class="${stack?'mpl':''}">${nums.map(n=>`<a class="pl" href="tel:${n.replace(/\D/g,'')}">${n}</a>`).join(' ')}</div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER NAV
+═══════════════════════════════════════════════════ */
+function renderNav(){
+  const list=document.getElementById('navList');
+  list.innerHTML=DEPTS.map(d=>{
+    const cnt=d.key==='All'?allC.length:allC.filter(c=>c.dept===d.key).length;
+    return`<button class="nb${curDept===d.key?' act':''}" onclick="selectDept('${d.key}')">
+      <span class="ic">${d.icon}</span>${d.label}<span class="badge">${cnt}</span>
+    </button>`;
+  }).join('');
+  const stats=document.getElementById('sbStats');
+  const depts=new Set(allC.map(c=>c.dept)).size;
+  const hubs=new Set(driverRaw.map(d=>d.from)).size;
+  stats.innerHTML=`
+    <div class="sb-stat"><div class="n">${allC.length}</div><div class="l">Total</div></div>
+    <div class="sb-stat"><div class="n">${depts}</div><div class="l">Depts</div></div>
+    <div class="sb-stat"><div class="n">${hubs}</div><div class="l">Hubs</div></div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   MAIN RENDER
+═══════════════════════════════════════════════════ */
+function render(){
+  const list=getFiltered();
+  const dc=DEPTS.find(d=>d.key===curDept)||DEPTS[0];
+  document.getElementById('pgTitle').textContent=dc.label;
+  document.getElementById('pgCnt').textContent=list.length;
+  document.getElementById('pgSub').textContent=curDept==='All'
+    ?'SCS Essential Office Directory — All Departments'
+    :`${dc.label} — ${list.length} contact${list.length!==1?'s':''}`;
+  document.getElementById('filterResults').textContent=`${list.length} result${list.length!==1?'s':''}`;
+
+  const box=document.getElementById('container');
+  if(!list.length){
+    box.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><p style="font-size:13px">No contacts match your search or filters.</p><p style="font-size:11px;margin-top:6px"><button onclick="clearFilters()" class="clear-btn" style="margin-top:6px">✕ Clear all filters</button></p></div>`;
+    return;
+  }
+
+  if(curView==='card')  box.innerHTML=buildCards(list);
+  else if(curView==='list') box.innerHTML=buildList(list);
+  else box.innerHTML=buildTable(list);
+}
+
+/* ─ CARD VIEW ─ */
+function buildCards(list){
+  const grouped=groupByDept(list);
+  return grouped.map(([dept,items])=>{
+    const dc=DEPTS.find(d=>d.key===dept)||DEPTS[0];
+    const groupHd=curDept==='All'?`<div class="dept-group-hd"><span class="dgh-title">${dc.icon} ${dept}</span><span class="dgh-cnt" style="background:${dc.bg};color:${dc.clr}">${items.length}</span></div>`:'';
+    const cards=items.map(c=>{
+      const dc2=DEPTS.find(d=>d.key===c.dept)||DEPTS[0];
+      return`<div class="contact-card" style="--card-top:${dc2.top}">
+        <div class="cc-hd">
+          <div class="avatar" style="background:${avc(c._id)}">${ini(c.name)}</div>
+          <div><div class="cc-name">${c.name}</div><div class="cc-role">${c.desig||''}</div></div>
+        </div>
+        <span class="dpill" style="background:${dc2.bg};color:${dc2.clr}">${c.dept}</span>
+        <div class="cc-info">
+          ${c.contact&&c.contact!=='N/A'?`<div class="ir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${pl(c.contact,true)}</div>`:''}
+          ${c.hub?`<div class="ir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>${c.hub}</span></div>`:''}
+          ${c.vehicle&&c.dept==='Driver'?`<div class="ir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="8" cy="15" r="2"/><circle cx="16" cy="15" r="2"/></svg><span>${c.vehicle}</span></div>`:''}
+          ${c.division&&c.dept!=='Driver'?`<div class="ir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span>${c.division}</span></div>`:''}
+        </div>
+        <div class="cc-acts">
+          ${c.contact&&c.contact!=='N/A'?`<button class="ca p" onclick="window.location.href='tel:${c.contact.split('&')[0].replace(/\D/g,'')}'" >📞 Call</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    return groupHd+`<div class="cards-grid" style="margin-bottom:${curDept==='All'?'0':'0'}">${cards}</div>`;
+  }).join('');
+}
+
+/* ─ LIST VIEW ─ */
+function buildList(list){
+  const grouped=groupByDept(list);
+  return grouped.map(([dept,items])=>{
+    const dc=DEPTS.find(d=>d.key===dept)||DEPTS[0];
+    const groupHd=curDept==='All'?`<div class="dept-group-hd"><span class="dgh-title">${dc.icon} ${dept}</span><span class="dgh-cnt" style="background:${dc.bg};color:${dc.clr}">${items.length}</span></div>`:'';
+    const rows=items.map(c=>{
+      const dc2=DEPTS.find(d=>d.key===c.dept)||DEPTS[0];
+      return`<div class="li">
+        <div class="avatar" style="background:${avc(c._id)};width:40px;height:40px;border-radius:11px;font-size:13px">${ini(c.name)}</div>
+        <div class="li-info">
+          <div class="li-name">${c.name}</div>
+          <div class="li-role">${c.desig||''}</div>
+        </div>
+        <span class="dpill" style="background:${dc2.bg};color:${dc2.clr}">${c.dept}</span>
+        <div class="li-meta">
+          ${c.contact&&c.contact!=='N/A'?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a class="pl" href="tel:${c.contact.split('&')[0].replace(/\D/g,'')}">${c.contact.split('&')[0].trim()}</a></span>`:''}
+          ${c.hub?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${c.hub}</span>`:''}
+          ${c.vehicle&&c.dept==='Driver'?`<span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>${c.vehicle}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    return groupHd+`<div class="list-view">${rows}</div>`;
+  }).join('');
+}
+
+/* ─ TABLE VIEW ─ */
+function buildTable(list){
+  const grouped=groupByDept(list);
+  return grouped.map(([dept,items])=>{
+    const dc=DEPTS.find(d=>d.key===dept)||DEPTS[0];
+    const groupHd=curDept==='All'?`<div class="dept-group-hd"><span class="dgh-title">${dc.icon} ${dept}</span><span class="dgh-cnt" style="background:${dc.bg};color:${dc.clr}">${items.length}</span></div>`:'';
+    let tbl='';
+    if(dept==='Driver')tbl=driverTable(items);
+    else if(dept==='C4')tbl=c4Table(items);
+    else if(dept==='Administration')tbl=adminTable(items);
+    else if(dept==='IT')tbl=itTable(items);
+    else if(dept==='Operation')tbl=opTable(items);
+    return groupHd+tbl;
+  }).join('');
+}
+
+function driverTable(items){
+  return`<div class="tw"><div class="tw-scroll"><table>
+    <thead><tr><th>#</th><th>Vehicle No.</th><th>Driver Name</th><th>Driver ID</th><th>Contact</th><th>Hub / Location</th></tr></thead>
+    <tbody>${items.map((c,i)=>`<tr>
+      <td>${i+1}</td>
+      <td><span style="font-family:monospace;font-weight:800;font-size:11.5px;color:var(--text)">${c.vehicle}</span></td>
+      <td><div class="tdn">${c.name}</div></td>
+      <td><span class="tbadge" style="background:#FAEEDA;color:#7A4500">${c.driverId}</span></td>
+      <td>${pl(c.contact,true)}</td>
+      <td style="font-size:11px">${c.hub}</td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+function c4Table(items){
+  return`<div class="tw"><div class="tw-scroll"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Division / Area</th><th>Hub</th></tr></thead>
+    <tbody>${items.map((c,i)=>`<tr>
+      <td>${i+1}</td><td><div class="tdn">${c.name}</div></td>
+      <td>${pl(c.contact,true)}</td>
+      <td style="font-size:11px">${c.division}</td>
+      <td><span class="tbadge" style="background:#D8F3EA;color:#0D5C45">${c.hub}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+function adminTable(items){
+  return`<div class="tw"><div class="tw-scroll"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Designation</th><th>Contact</th></tr></thead>
+    <tbody>${items.map((c,i)=>`<tr>
+      <td>${i+1}</td><td><div class="tdn">${c.name}</div></td>
+      <td style="font-size:11px">${c.desig}</td>
+      <td>${pl(c.contact,true)}</td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+function itTable(items){
+  return`<div class="tw"><div class="tw-scroll"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Designation</th><th>Contact</th><th>Working Dept.</th></tr></thead>
+    <tbody>${items.map((c,i)=>`<tr>
+      <td>${i+1}</td><td><div class="tdn">${c.name}</div></td>
+      <td style="font-size:11px">${c.desig}</td>
+      <td>${pl(c.contact,true)}</td>
+      <td><span class="tbadge" style="background:#EAE8FD;color:#3E2D87">${c.hub}</span></td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+function opTable(items){
+  return`<div class="tw"><div class="tw-scroll"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Designation</th><th>Role / Area</th><th>Contact</th></tr></thead>
+    <tbody>${items.map((c,i)=>`<tr>
+      <td>${i+1}</td><td><div class="tdn">${c.name}</div></td>
+      <td><span class="tbadge" style="background:#FAEBE7;color:#7A2610">${c.desig}</span></td>
+      <td style="font-size:11px">${c.hub}</td>
+      <td>${pl(c.contact,true)}</td>
+    </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+
+/* ─ GROUP BY DEPT ─ */
+function groupByDept(list){
+  const order=['Driver','C4','Administration','IT','Operation'];
+  if(curDept!=='All')return[[curDept,list]];
+  const map={};
+  list.forEach(c=>{if(!map[c.dept])map[c.dept]=[];map[c.dept].push(c);});
+  return order.filter(d=>map[d]&&map[d].length).map(d=>[d,map[d]]);
+}
+
+/* ═══════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════ */
+function selectDept(k){
+  curDept=k;
+  // sync filter select
+  document.getElementById('fDept').value=k==='All'?'':k;
+  document.getElementById('fDept').classList.toggle('has-val',k!=='All');
+  if(window.innerWidth<=920)closeSB();
+  renderNav();render();
+}
+
+function setView(v){
+  curView=v;
+  ['card','list','table'].forEach(x=>{
+    const id='v'+x.charAt(0).toUpperCase()+x.slice(1);
+    document.getElementById(id).classList.toggle('act',x===v);
+  });
+  render();
+}
+
+function toggleSB(){
+  const sb=document.getElementById('sidebar');
+  const bd=document.getElementById('sbBackdrop');
+  const hb=document.getElementById('hbBtn');
+  sb.classList.toggle('sb-open');
+  bd.classList.toggle('show');
+  hb.classList.toggle('open');
+}
+function closeSB(){
+  document.getElementById('sidebar').classList.remove('sb-open');
+  document.getElementById('sbBackdrop').classList.remove('show');
+  document.getElementById('hbBtn').classList.remove('open');
+}
+
+function openModal(){document.getElementById('overlay').classList.add('open')}
+function closeModal(){document.getElementById('overlay').classList.remove('open')}
+function overlayClick(e){if(e.target===e.currentTarget)closeModal()}
+
+function saveContact(){
+  const name=document.getElementById('fn').value.trim();
+  const dept=document.getElementById('fd').value;
+  const role=document.getElementById('fr2').value.trim();
+  const contact=document.getElementById('fc').value.trim();
+  const fx=document.getElementById('fx').value.trim();
+  const fy=document.getElementById('fy').value.trim();
+  if(!name||!dept){alert('Name and Department are required.');return}
+  allC.push({_id:nid++,dept,name,role,desig:role,hub:fx,division:fy,vehicle:fy,driverId:'',contact,extra1:fx,extra2:fy});
+  closeModal();
+  ['fn','fd','fr2','fc','fx','fy'].forEach(id=>document.getElementById(id).value='');
+  populateFilters();renderNav();render();
+}
+
+function doPrint(){
+  document.getElementById('printDate').textContent=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  // Build print meta info
+  const f=getFilters();
+  let meta='Office Directory';
+  if(curDept!=='All')meta+=` — ${curDept}`;
+  if(f.role)meta+=` | Role: ${f.role}`;
+  if(f.hub)meta+=` | Hub: ${f.hub}`;
+  if(f.vehicle)meta+=` | Vehicle: ${f.vehicle}`;
+  document.getElementById('printMeta').innerHTML=`${meta} — Printed on ${document.getElementById('printDate').textContent}`;
+  // Force table view for best print output
+  const prevView=curView;
+  setView('table');
+  setTimeout(()=>{window.print();setTimeout(()=>setView(prevView),300);},200);
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+document.getElementById('vCard').classList.add('act');
+populateFilters();
+renderNav();
+render();
+</script>
+</body>
+</html>
